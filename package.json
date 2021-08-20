@@ -2,11 +2,12 @@
   "name": "style-implant",
   "version": "0.3.0",
   "description": "Implant style tags where you need them.",
-  "main": "./dist/style-implant.js",
+  "main": "dist/umd/style-inject.js",
+  "module": "dist/es/style-inject.js",
   "scripts": {
-    "prepublish": "yarn test",
+    "prepublishOnly": "yarn test",
     "pretest": "yarn build",
-    "build": "rm -rf dist && yarn lint && tsc",
+    "build": "rm -rf dist && yarn lint && tsc --module ES2015 --outDir ./dist/es && tsc --module UMD --outDir ./dist/umd",
     "test": "ts-mocha tests/**/*.test.ts",
     "lint": "eslint \"**/*.ts\""
   },
