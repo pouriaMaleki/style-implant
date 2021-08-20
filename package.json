@@ -1,14 +1,13 @@
 {
   "name": "style-implant",
-  "version": "0.0.1",
-  "description": "Implant style tags where you need them",
+  "version": "0.3.0",
+  "description": "Implant style tags where you need them.",
   "main": "./dist/style-implant.js",
   "scripts": {
-    "prebuild": "yarn lint && yarn test",
-    "prepublish": "yarn build",
-    "build": "tsc",
+    "prepublish": "yarn test",
+    "pretest": "yarn build",
+    "build": "rm -rf dist && yarn lint && tsc",
     "test": "ts-mocha tests/**/*.test.ts",
-    "coverage": "nyc npm test",
     "lint": "eslint \"**/*.ts\""
   },
   "files": [
@@ -47,8 +46,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "mocha": "^8.4.0",
-    "nyc": "^15.1.0",
     "prettier": "^2.3.2",
+    "puppeteer": "^10.2.0",
     "ts-mocha": "^8.0.0",
     "typescript": "^4.3.5"
   }
