@@ -32,7 +32,7 @@ describe('style-implant unit tests', async (): void => {
     server = http.createServer((req, res) => {
       if (req.url === '/style-implant.js') {
         res.writeHead(200, { 'content-type': 'text/javascript' });
-        fs.createReadStream('./dist/style-implant.js').pipe(res);
+        fs.createReadStream('./dist/es/style-implant.js').pipe(res);
       } else {
         res.writeHead(200, { 'content-type': 'text/html' });
         fs.createReadStream('./tests/test.html').pipe(res);

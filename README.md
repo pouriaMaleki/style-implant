@@ -7,33 +7,38 @@ Implant style tags where you need them.
 ## Installation
 
 ```bash
-npm install style-implant
+yarn add style-implant
 ```
 
 ```bash
-yarn add style-implant
+npm install style-implant
 ```
 
 ## Example
 
 ```javascript
 import styleImplant from 'style-implant';
+
 const css = `
   body {
     margin: 0;
   }
 `;
+
 const options = { insertAt: 'top' };
+
 styleImplant(css, options);
 ```
 
 ## Options
 
-### insertAt
+```javascript
+{
+  insertAt?: string = 'bottom';
+}
+```
 
-Type: `string`<br>
-Possible values: `top`<br>
-Default: `undefined`
+- `insertAt`: When `'top'` style tags will be implanted in the top of the head rather than the bottom. _Warning: This will reverse the order in which tags load as the newest tag will always be first instead of last._
 
 ## License
 
