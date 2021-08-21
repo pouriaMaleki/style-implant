@@ -1,6 +1,6 @@
 {
   "name": "style-implant",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Implant style tags where you need them.",
   "main": "dist/umd/style-inject.js",
   "module": "dist/es/style-inject.js",
