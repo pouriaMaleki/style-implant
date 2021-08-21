@@ -25,7 +25,10 @@ const css = `
   }
 `;
 
-const options = { insertAt: 'top' };
+const options = {
+  insertAt: 'top',
+  attributes: { 'data-implanted': '💉' },
+};
 
 styleImplant(css, options);
 ```
@@ -34,10 +37,12 @@ styleImplant(css, options);
 
 ```javascript
 {
+  attributes?: {string: string};
   insertAt?: string = 'bottom';
 }
 ```
 
+- `attributes`: Takes an object where the keys are attribute names and the values are the attribute values.
 - `insertAt`: When `'top'` style tags will be implanted in the top of the head rather than the bottom. _Warning: This will reverse the order in which tags load as the newest tag will always be first instead of last._
 
 ## License

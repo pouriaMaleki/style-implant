@@ -2,8 +2,10 @@ const styleImplant = (
   css: string,
   {
     insertAt,
+    attributes,
   }: {
     insertAt?: string | null;
+    attributes?: Record<string, string>;
   } = {}
 ): boolean => {
   if (!css || typeof document === 'undefined') return false;
@@ -26,6 +28,14 @@ const styleImplant = (
     style.styleSheet.cssText = css;
   } else {
     style.appendChild(document.createTextNode(css));
+  }
+
+  style.setAttribute('data-style-implant', '');
+
+  if (attributes) {
+    Object.keys(attributes).forEach(qualifiedName => {
+      style.setAttribute(qualifiedName, attributes[qualifiedName]);
+    });
   }
 
   return true;

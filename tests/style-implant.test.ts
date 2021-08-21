@@ -32,6 +32,19 @@ const getTestColor = async (): string => {
   return color;
 };
 
+const getStyleAttribute = async (attribute: string): string => {
+  const color: string = await new Promise(resolve => {
+    setTimeout(async () => {
+      const elementAttribute = await page.evaluate(attribute => {
+        const styleElement = document.getElementsByTagName('style')[0];
+        return styleElement.getAttribute(attribute);
+      }, attribute);
+      resolve(elementAttribute);
+    }, 10);
+  });
+  return color;
+};
+
 const reloadPage = async (): void => {
   await page.reload({ waitUntil: 'domcontentloaded' });
 };
@@ -52,25 +65,40 @@ describe('style-implant unit tests', async (): void => {
     global.browser = await puppeteer.launch({ headless: true });
     page = await browser.newPage();
   });
+
   it('page loaded', async (): void => {
     await Promise.all([page.goto(url, { timeout: 0 }), page.waitForNavigation({ timeout: 0 })]);
     // Page title should be as expected to confirm the test page loaded
     expect(await page.title()).to.eql('style-implant');
   });
+
   it('undefined css', async (): void => {
     await addImplant(null, {});
     const testElementColor = await getTestColor();
     // Color should be unchanged because no css was passed
     expect(testElementColor).is.equal('rgb(0, 0, 0)');
   });
+
   it('no options', async (): void => {
     await reloadPage();
     await addImplant('.test{color: red;}', {});
+    const defaultAttribute = await getStyleAttribute('data-style-implant');
     const testElementColor = await getTestColor();
+    // Default attribute should have the value ''
+    expect(defaultAttribute).is.equal('');
     // Color should be red because css was passed with no options
     expect(testElementColor).is.equal('rgb(255, 0, 0)');
   });
-  it('insertAt:top', async (): void => {
+
+  it('custom attributes', async (): void => {
+    await reloadPage();
+    await addImplant('.test{color: red;}', { attributes: { 'data-test': 'success' } });
+    const testAttribute = await getStyleAttribute('data-test');
+    // Test attribute should have the value 'success'
+    expect(testAttribute).is.equal('success');
+  });
+
+  it('insert at top', async (): void => {
     await reloadPage();
     await addImplant('.test{color: blue;}', {});
     await addImplant('.test{color: red;}', { insertAt: 'top' });
@@ -78,6 +106,7 @@ describe('style-implant unit tests', async (): void => {
     // Color should be blue because the second implant is added to the top so it gets overridden
     expect(testElementColor).is.equal('rgb(0, 0, 255)');
   });
+
   after(async (): void => {
     await page.close();
     await browser.close();
