@@ -19,6 +19,24 @@ const addImplant = async (css?: string, options?: unknown): void => {
   }, implantInputs);
 };
 
+const addImplants = async (implants: [{ css?: string; options?: unknown }]): void => {
+  let implantFunctions = '';
+  implants.forEach(implant => {
+    const input = implant.options
+      ? `"${implant.css}",${JSON.stringify(implant.options)}`
+      : `"${implant.css}"`;
+    implantFunctions += ` styleImplant(${input});`;
+  });
+  await page.evaluate(implantFunctions => {
+    const head = document.head;
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.innerHTML = `import styleImplant from "/style-implant.js";${implantFunctions}`;
+    head.appendChild(script);
+    return;
+  }, implantFunctions);
+};
+
 const getTestColor = async (): string => {
   const color: string = await new Promise(resolve => {
     setTimeout(async () => {
@@ -100,10 +118,35 @@ describe('style-implant unit tests', async (): void => {
 
   it('insert at top', async (): void => {
     await reloadPage();
-    await addImplant('.test{color: blue;}', {});
-    await addImplant('.test{color: red;}', { insertAt: 'top' });
+    await addImplants([
+      { css: '.test{color: blue;}', options: {} },
+      { css: '.test{color: red;}', options: { insertAt: 'top' } },
+    ]);
     const testElementColor = await getTestColor();
     // Color should be blue because the second implant is added to the top so it gets overridden
+    expect(testElementColor).is.equal('rgb(0, 0, 255)');
+  });
+
+  // eslint-disable-next-line quotes
+  it("don't preserve order", async (): void => {
+    await reloadPage();
+    await addImplants([
+      { css: '.test{color: red;}', options: { insertAt: 'top' } },
+      { css: '.test{color: blue;}', options: { insertAt: 'top' } },
+    ]);
+    const testElementColor = await getTestColor();
+    // Color should be red because the second implant is added before the first
+    expect(testElementColor).is.equal('rgb(255, 0, 0)');
+  });
+
+  it('preserve order', async (): void => {
+    await reloadPage();
+    await addImplants([
+      { css: '.test{color: red;}', options: { insertAt: 'top', preserveOrder: true } },
+      { css: '.test{color: blue;}', options: { insertAt: 'top', preserveOrder: true } },
+    ]);
+    const testElementColor = await getTestColor();
+    // Color should be blue because the second implant is added after the first as preserveOrder is enabled
     expect(testElementColor).is.equal('rgb(0, 0, 255)');
   });
 
