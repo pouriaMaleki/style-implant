@@ -1,11 +1,13 @@
 const styleImplant = (
   css: string,
   {
-    insertAt,
     attributes,
+    insertAt,
+    preserveOrder,
   }: {
-    insertAt?: string | null;
     attributes?: Record<string, string>;
+    insertAt?: 'top' | 'bottom';
+    preserveOrder?: boolean;
   } = {}
 ): boolean => {
   if (!css || typeof document === 'undefined') return false;
@@ -16,7 +18,19 @@ const styleImplant = (
 
   if (insertAt === 'top') {
     if (head.firstChild) {
-      head.insertBefore(style, head.firstChild);
+      if (preserveOrder) {
+        // Find the first child that isn't an implanted style tag
+        const firstNonImplant = Array.from(head.children).find(child => {
+          return child.getAttribute('data-style-implant') === null;
+        });
+        if (firstNonImplant) {
+          head.insertBefore(style, firstNonImplant as Node);
+        } else {
+          head.appendChild(style);
+        }
+      } else {
+        head.insertBefore(style, head.firstChild);
+      }
     } else {
       head.appendChild(style);
     }
@@ -30,6 +44,7 @@ const styleImplant = (
     style.appendChild(document.createTextNode(css));
   }
 
+  // This attribute is used to check if a style tag is implanted
   style.setAttribute('data-style-implant', '');
 
   if (attributes) {
