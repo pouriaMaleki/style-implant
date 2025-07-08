@@ -150,6 +150,46 @@ describe('style-implant unit tests', async (): void => {
     expect(testElementColor).is.equal('rgb(0, 0, 255)');
   });
 
+  it('insert at top should let already exisiting styles in the html override the injected style when not preserving order', async (): void => {
+    await reloadPage();
+    // html page already has a style tag with color green
+    await page.evaluate(() => {
+      const style = document.createElement('style');
+      style.innerHTML = '.test{color: green;}';
+      style.type = 'text/css';
+      const head = document.head;
+      head.insertBefore(style, head.firstChild);
+      return;
+    });
+    await addImplants([
+      { css: '.test{color: red;}', options: { insertAt: 'top' } },
+      { css: '.test{color: blue;}', options: { insertAt: 'top' } },
+    ]);
+    const testElementColor = await getTestColor();
+    // Color should be blue because the second implant is added after the first as preserveOrder is enabled
+    expect(testElementColor).is.equal('rgb(0, 128, 0)');
+  });
+
+  it('insert at top should let already exisiting styles in the html override the injected style when preserving order', async (): void => {
+    await reloadPage();
+    // html page already has a style tag with color green
+    await page.evaluate(() => {
+      const style = document.createElement('style');
+      style.innerHTML = '.test{color: green;}';
+      style.type = 'text/css';
+      const head = document.head;
+      head.insertBefore(style, head.firstChild);
+      return;
+    });
+    await addImplants([
+      { css: '.test{color: red;}', options: { insertAt: 'top', preserveOrder: true } },
+      { css: '.test{color: blue;}', options: { insertAt: 'top', preserveOrder: true } },
+    ]);
+    const testElementColor = await getTestColor();
+    // Color should be blue because the second implant is added after the first as preserveOrder is enabled
+    expect(testElementColor).is.equal('rgb(0, 128, 0)');
+  });
+
   after(async (): void => {
     await page.close();
     await browser.close();

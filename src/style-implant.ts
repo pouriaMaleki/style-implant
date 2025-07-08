@@ -20,13 +20,12 @@ const styleImplant = (
     if (head.firstChild) {
       if (preserveOrder) {
         // Find the first child that isn't an implanted style tag
-        const firstNonImplant = Array.from(head.children).find(child => {
-          return child.getAttribute('data-style-implant') === null;
-        });
-        if (firstNonImplant) {
-          head.insertBefore(style, firstNonImplant as Node);
+        const firstImplant =
+          document.querySelector<HTMLStyleElementExtended>('[data-style-implant]');
+        if (firstImplant) {
+          firstImplant.insertAdjacentElement('afterend', style);
         } else {
-          head.appendChild(style);
+          head.insertBefore(style, head.firstChild);
         }
       } else {
         head.insertBefore(style, head.firstChild);
